@@ -21,7 +21,7 @@ public class LineDraw : MonoBehaviour
     {
         cam = FindObjectOfType<Camera>();
         //Test;
-        //sdfsd
+
     }
 
     // Update is called once per frame
