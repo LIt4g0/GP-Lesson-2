@@ -10,19 +10,19 @@ using UnityEngine;
 public class CircleController : MonoBehaviour
 {
 
-    Vector3 betweenVector;
+    Vector3 direction;
     float magnitude;
     Vector2 mousePos;
     float height;
     float width;
-    float angle = 0;
+    // float angle = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         //Application.targetFrameRate = 120;
-        height = Camera.main.orthographicSize * 2f;
-        width = Camera.main.orthographicSize * Camera.main.aspect * 2f;
+        height = Camera.main.orthographicSize;
+        width = height * Camera.main.aspect;
     }
 
     // Update is called once per frame
@@ -43,20 +43,23 @@ public class CircleController : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
-            betweenVector = mousePos - (Vector2)transform.position;
-            magnitude = Magnitude(betweenVector)*0.5f;
-            if (magnitude > 3) magnitude = 3;
-            
+            direction = (Vector2)transform.position -mousePos;
+            direction *=  0.5f;
+            direction *= Mathf.Clamp(direction.sqrMagnitude, 0.5f, 8);
+            magnitude = direction.sqrMagnitude;//Magnitude(betweenVector)*0.5f;
+            //if (magnitude > 3) magnitude = 3;
         }
 
         if (magnitude > 0)
         {
-            Vector3 move;// = new Vector3();
+            Vector3 movement;// = new Vector3();
             
-            move = magnitude * -betweenVector* Time.deltaTime;
+            movement = -direction * Time.deltaTime;
 
-            Vector3 posMax = Camera.main.WorldToViewportPoint(transform.position + transform.localScale*0.5f + move);
-            Vector3 posMin = Camera.main.WorldToViewportPoint(transform.position - transform.localScale*0.5f + move);
+            // Vector3 posMax = Camera.main.WorldToViewportPoint(transform.position + transform.localScale*0.5f + move);
+            // Vector3 posMin = Camera.main.WorldToViewportPoint(transform.position - transform.localScale*0.5f + move);
+            Vector3 posMax = Camera.main.WorldToViewportPoint(transform.position + transform.localScale*0.5f + movement);
+            Vector3 posMin = Camera.main.WorldToViewportPoint(transform.position - transform.localScale*0.5f + movement);
             
             //Check edges:
             bool outOfBoundsX = false;
@@ -68,38 +71,41 @@ public class CircleController : MonoBehaviour
 
             if (outOfBoundsX)
             {
+                Vector3 adjustPos = transform.position;
                 Debug.Log("left or right crash");
-                betweenVector.x *= -1;
-                move.x *= -1;
+                adjustPos.x = movement.x - width;
+                direction.x *= -1;
+                //movement -= adjustPos;
+                movement.x *= -1;
             }
 
             if (outOfBoundsY)
             {
                 Debug.Log("bottom or top crash");
-                betweenVector.y *= -1;
-                move.y *= -1;
+                direction.y *= -1;
+                movement.y *= -1;
             }
 
-            move.z = 0;
-            transform.position = transform.position + move;
+            movement.z = 0;
+            transform.position += movement;
         }
     }
 
-    public float Magnitude(Vector2 vector)
-    {
-        float sqrtLength = (vector.x * vector.x) + (vector.y * vector.y);
-        float length = Mathf.Sqrt(sqrtLength);
-        return length;
-    }
+    // public float Magnitude(Vector2 vector)
+    // {
+    //     float sqrtLength = (vector.x * vector.x) + (vector.y * vector.y);
+    //     float length = Mathf.Sqrt(sqrtLength);
+    //     return length;
+    // }
 
-    public float Clamp(float min, float max, float value)
-    {
-        if (value < min) {
-            value = min;
-        }
-        else if (value > max) {
-            value = max;
-        }
-        return value;
-    }
+    // public float Clamp(float min, float max, float value)
+    // {
+    //     if (value < min) {
+    //         value = min;
+    //     }
+    //     else if (value > max) {
+    //         value = max;
+    //     }
+    //     return value;
+    // }
 }
