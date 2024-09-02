@@ -55,14 +55,16 @@ public class CircleController : MonoBehaviour
             
             move = magnitude * -betweenVector* Time.deltaTime;
 
-            Vector3 pos = Camera.main.WorldToViewportPoint(transform.position + move);
+            Vector3 posMax = Camera.main.WorldToViewportPoint(transform.position + transform.localScale*0.5f + move);
+            Vector3 posMin = Camera.main.WorldToViewportPoint(transform.position - transform.localScale*0.5f + move);
+            
             //Check edges:
             bool outOfBoundsX = false;
             bool outOfBoundsY = false;
-            if(pos.x < 0.0) outOfBoundsX = true;//Debug.Log("I am right of the camera's view.");
-            if(1.0 < pos.x) outOfBoundsX = true;//Debug.Log("I am right of the camera's view.");
-            if(pos.y < 0.0) outOfBoundsY = true;//Debug.Log("I am below the camera's view.");
-            if(1.0 < pos.y) outOfBoundsY = true;//Debug.Log("I am above the camera's view.");
+            if(posMin.x < 0.0) outOfBoundsX = true;//Debug.Log("I am right of the camera's view.");
+            if(1.0 < posMax.x) outOfBoundsX = true;//Debug.Log("I am right of the camera's view.");
+            if(posMin.y < 0.0) outOfBoundsY = true;//Debug.Log("I am below the camera's view.");
+            if(1.0 < posMax.y) outOfBoundsY = true;//Debug.Log("I am above the camera's view.");
 
             if (outOfBoundsX)
             {
