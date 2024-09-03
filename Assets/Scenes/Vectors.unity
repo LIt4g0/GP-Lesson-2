@@ -237,6 +237,13 @@ MonoBehaviour:
   deAcceleration: 4
   useAcceleration: 0
   velocity: {x: 0, y: 0, z: 0}
+  height: 0
+  width: 0
+  child: []
+  gravity: 0
+  gravityForce: -1
+  gLossPerBounce: 0.15
+  maxGravity: -1
 --- !u!1 &1626426075
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,11 +367,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 536075ffb3ab5b640a792970433dd81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topSpeed: 0.4
-  acceleration: 0.5
-  deAcceleration: 4
+  topSpeed: 0.5
+  acceleration: 0.7
+  deAcceleration: 5
   useAcceleration: 1
   velocity: {x: 0, y: 0, z: 0}
+  height: 0
+  width: 0
+  child: []
+  gravity: 0
+  gravityForce: -1
+  gLossPerBounce: 0.05
+  maxGravity: -1
 --- !u!114 &1836034277
 MonoBehaviour:
   m_ObjectHideFlags: 0
