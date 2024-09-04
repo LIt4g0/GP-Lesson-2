@@ -132,19 +132,6 @@ public class Movement : MonoBehaviour
             
             if (velocity.sqrMagnitude > maxSpeed * maxSpeed)//De-accelerate one axis to allow for turning at max speeds + De-accelerate if at max speed with both axis active
             {
-                // if (Mathf.Abs(velocity.x) > Mathf.Abs(velocity.y) && Mathf.Abs(direction.y) > 0)
-                // {
-                //     velocity.x -= deceleration * velocity.x * Time.deltaTime;
-                // }
-                // else if (Mathf.Abs(velocity.y) > Mathf.Abs(velocity.x) && Mathf.Abs(direction.x) > 0)
-                // {
-                //     velocity.y -= deceleration * velocity.y * Time.deltaTime;
-                // }
-                // else
-                // {
-                //     //velocity -= acceleration * Time.deltaTime * direction ;
-                // }
-                //Vector3 tempV = velocity  direction;
                 velocity = (velocity + direction).normalized * maxSpeed;
             }
 
@@ -170,7 +157,6 @@ public class Movement : MonoBehaviour
         else if (pos.y + localScaleY * 0.5f <=  -height)
             if (!gravity)
                 pos.y = (pos.y + localScaleY) * -1;
-
 
         transform.position = pos;
     }
