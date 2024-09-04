@@ -5,10 +5,10 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] [Range(0.1f,50.0f)]float topSpeed = 5;
+    [SerializeField] [Range(0.1f,50.0f)]float maxSpeed = 5;
     [SerializeField] bool useAcceleration = false;
     [SerializeField] [Range(0.1f,50.0f)]float acceleration = 2f;
-    [SerializeField] [Range(0.1f,20.0f)]float deAcceleration = 4f;
+    [SerializeField] [Range(0.1f,20.0f)]float deceleration = 4f;
     Vector3 velocity;
     float height;
     float width;
@@ -27,19 +27,21 @@ public class Movement : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = frameTarget;
-        circleSprite = GetComponent<SpriteRenderer>().sprite;
-        color = GetComponent<SpriteRenderer>().color;
-        height = Camera.main.orthographicSize;
-        width = height * Camera.main.aspect;
+        SpriteRenderer sRenderer = GetComponent<SpriteRenderer>();
+        circleSprite = sRenderer.sprite;
+        color = sRenderer.color;
+        Camera cam = Camera.main;
+        height = cam.orthographicSize;
+        width = height * cam.aspect;
         for (int i = 0; i < 4; i++)
         {
-            GameObject test = new GameObject("Peek 'a boo " + i);
-            test.transform.parent = transform;
-            test.AddComponent<SpriteRenderer>();
-            test.GetComponent<SpriteRenderer>().sprite = circleSprite;
-            test.GetComponent<SpriteRenderer>().color = color;
+            GameObject tempObject = new GameObject("Peek 'a boo " + i);
+            tempObject.transform.parent = transform;
+            SpriteRenderer sRend = tempObject.AddComponent<SpriteRenderer>();
+            sRend.sprite = circleSprite;
+            sRend.color = color;
         
-            child.Add(test.transform);
+            child.Add(tempObject.transform);
 
             if (i == 0) child[i].transform.SetPositionAndRotation(new Vector3(2*width,0,0),transform.rotation);
             if (i == 1) child[i].transform.SetPositionAndRotation(new Vector3(2*-width,0,0),transform.rotation);
@@ -58,7 +60,8 @@ public class Movement : MonoBehaviour
         float localScaleY = transform.localScale.y;
         direction.x = Input.GetAxisRaw("Horizontal");
         direction.y = Input.GetAxisRaw("Vertical");
-        direction = direction.normalized;
+        if (direction.sqrMagnitude > 1)
+            direction.Normalize();
         
         if (Input.GetButtonDown("Fire3"))
         {
@@ -83,7 +86,7 @@ public class Movement : MonoBehaviour
             
             if (Input.GetButtonDown("Jump") && FastApproximately(pos.y - (localScaleY * 0.5f), -height, 0.25f))//Secret jump
             {
-                velocity.y = topSpeed;
+                velocity.y = maxSpeed;
                 if (!useAcceleration)
                     gravityForce = -maxGravity;
                     direction.y = gravityForce;
@@ -92,7 +95,7 @@ public class Movement : MonoBehaviour
 
         if (!useAcceleration)
         {
-            velocity = Time.deltaTime * topSpeed * direction;
+            velocity = Time.deltaTime * maxSpeed * direction;
             //Gravity modifies velocity Y:
             if (pos.y + velocity.y - (localScaleY * 0.5f) <=  -height)
             {
@@ -108,41 +111,41 @@ public class Movement : MonoBehaviour
         {
             velocity += acceleration * Time.deltaTime * direction;
 
+            if (direction.sqrMagnitude < 0.05f)
+            {
+                velocity *= 1 - deceleration * Time.deltaTime;
+            }
+
             //De-accelerate X/Y and round to zero if one axis is inactive and check if changing direction X/Y to help turn faster:
-            if (direction.x == 0 && !Mathf.Approximately(velocity.x,0.0f) || direction.x < 0 && velocity.x > 0 || direction.x > 0 && velocity.x < 0)
+            if ( direction.x < 0 && velocity.x > 0 || direction.x > 0 && velocity.x < 0)
             {
-                velocity.x -= deAcceleration * velocity.x * Time.deltaTime;
+                velocity.x -= deceleration * velocity.x * Time.deltaTime;
             }
-            else if (direction.x == 0)
-            {
-                velocity.x = 0;
-            }
+
             if (!gravity) //Disable if gravity is active as de-acceleration in Y will be handled by separate function
             {
-                if (direction.y == 0 && !Mathf.Approximately(velocity.y,0.0f) || direction.y < 0 && velocity.y > 0 || direction.y > 0 && velocity.y < 0)
+                if (direction.y < 0 && velocity.y > 0 || direction.y > 0 && velocity.y < 0)
                 {
-                    velocity.y -= deAcceleration * velocity.y * Time.deltaTime;
-                }
-                else if (direction.y == 0)
-                {
-                    velocity.y = 0;
+                    velocity.y -= deceleration * velocity.y * Time.deltaTime;
                 }
             }
             
-            if (velocity.magnitude*Time.deltaTime > topSpeed*Time.deltaTime)//De-accelerate one axis to allow for turning at max speeds + De-accelerate if at max speed with both axis active
+            if (velocity.sqrMagnitude > maxSpeed * maxSpeed)//De-accelerate one axis to allow for turning at max speeds + De-accelerate if at max speed with both axis active
             {
-                if (Mathf.Abs(velocity.x) > Mathf.Abs(velocity.y) && Mathf.Abs(direction.y) > 0)
-                {
-                    velocity.x -= deAcceleration * velocity.x * Time.deltaTime;
-                }
-                else if (Mathf.Abs(velocity.y) > Mathf.Abs(velocity.x) && Mathf.Abs(direction.x) > 0)
-                {
-                    velocity.y -= deAcceleration * velocity.y * Time.deltaTime;
-                }
-                else
-                {
-                    velocity -= acceleration * direction * Time.deltaTime ;
-                }
+                // if (Mathf.Abs(velocity.x) > Mathf.Abs(velocity.y) && Mathf.Abs(direction.y) > 0)
+                // {
+                //     velocity.x -= deceleration * velocity.x * Time.deltaTime;
+                // }
+                // else if (Mathf.Abs(velocity.y) > Mathf.Abs(velocity.x) && Mathf.Abs(direction.x) > 0)
+                // {
+                //     velocity.y -= deceleration * velocity.y * Time.deltaTime;
+                // }
+                // else
+                // {
+                //     //velocity -= acceleration * Time.deltaTime * direction ;
+                // }
+                //Vector3 tempV = velocity  direction;
+                velocity = (velocity + direction).normalized * maxSpeed;
             }
 
             if (pos.y + (velocity.y*Time.deltaTime) - (localScaleY * 0.5f) <=  -height)//Gravity modifies velocity Y:
@@ -159,14 +162,12 @@ public class Movement : MonoBehaviour
         //Check if pos is out of bounds:
         if (pos.x - localScaleX * 0.5f >=  width)
             pos.x = (pos.x - localScaleX) * -1;
-
-        if (pos.x + localScaleX * 0.5f <=  -width)
+        else if (pos.x + localScaleX * 0.5f <=  -width)
             pos.x = (pos.x + localScaleX) * -1;
 
         if (pos.y - localScaleY * 0.5f >=  height)
             pos.y = (pos.y - localScaleY) * -1;
-
-        if (pos.y + localScaleY * 0.5f <=  -height)
+        else if (pos.y + localScaleY * 0.5f <=  -height)
             if (!gravity)
                 pos.y = (pos.y + localScaleY) * -1;
 

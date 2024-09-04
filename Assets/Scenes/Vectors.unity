@@ -232,10 +232,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 536075ffb3ab5b640a792970433dd81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topSpeed: 10
+  maxSpeed: 5
   useAcceleration: 0
   acceleration: 2
-  deAcceleration: 4
+  deceleration: 4
   gravity: 0
   bounceLoss: 0.25
   maxGravity: -1
@@ -363,12 +363,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 536075ffb3ab5b640a792970433dd81e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topSpeed: 20
+  maxSpeed: 20
   useAcceleration: 1
   acceleration: 20
-  deAcceleration: 4
+  deceleration: 9.4
   gravity: 0
-  bounceLoss: 2.5
+  bounceLoss: 2
   maxGravity: -1
   frameTarget: 30
 --- !u!114 &1836034277
